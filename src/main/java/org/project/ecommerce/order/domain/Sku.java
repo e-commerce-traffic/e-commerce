@@ -1,21 +1,23 @@
 package org.project.ecommerce.order.domain;
 
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 
 
 @Getter
+@Table(name = "sku")
+@Entity
 public class Sku {
-    private final Long id;
-    private final String name;
-    private final VendorItem vendorItem;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sku_id")
+    private Long id;
 
 
-    @Builder
-    public Sku(Long id, String name, VendorItem vendorItem) {
-        this.id = id;
-        this.name = name;
-        this.vendorItem = vendorItem;
+    @ManyToOne
+    @JoinColumn(name = "vendor_item_id")
+    private VendorItem vendorItem;
 
-    }
+
 }

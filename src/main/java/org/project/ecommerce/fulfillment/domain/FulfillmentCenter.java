@@ -1,19 +1,25 @@
 package org.project.ecommerce.fulfillment.domain;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-public class FulfillmentCenter {
-    private final Long id;
-    private final String name;
-    private final List<Stock> stocks = new ArrayList<>();
 
-    public FulfillmentCenter(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+@Getter
+@Table(name = "fulfillment_center")
+@Entity
+public class FulfillmentCenter {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "fulfillment_center_id")
+    private Long id;
+
+    @Column
+    private String name;
+
+    @OneToMany(mappedBy = "fulfillmentCenter")
+    private List<Inbound> inbound;
+
 
 }
