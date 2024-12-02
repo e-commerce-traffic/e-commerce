@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.project.ecommerce.fulfillment.domain.Sku;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class VendorItem {
     private String name;
 
     @OneToMany(mappedBy = "vendorItem")
-    private List<Sku> sku;
+    private List<Sku> sku=new ArrayList<>();
 
     @Column
     private int quantity;

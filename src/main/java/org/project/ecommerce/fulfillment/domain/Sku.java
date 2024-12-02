@@ -1,8 +1,9 @@
-package org.project.ecommerce.order.domain;
+package org.project.ecommerce.fulfillment.domain;
 
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import org.project.ecommerce.order.domain.VendorItem;
 
 
 @Getter
