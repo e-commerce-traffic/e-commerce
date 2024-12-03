@@ -8,13 +8,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("fulfillment/inbound")
+@RequestMapping("/fulfillment")
 @RequiredArgsConstructor
-public class InboundController {
+public class FulfillmentController {
     private final InboundService service;
 
 
-    @PostMapping
+    @GetMapping("/stock/{vendorItemId}")
+    public ResponseEntity<Integer> getStock(@PathVariable Long vendorItemId){
+        int stock = service.getStockByVendorItem(vendorItemId);
+        return ResponseEntity.ok(stock);
+    }
+
+
+
+    @PostMapping("/inbound")
     public ResponseEntity<Void> createInbound(@RequestBody @Valid InboundRequestDto dto) {
 
          service.createStock(dto);
