@@ -41,6 +41,13 @@
 
 - 락의 범위는 최대한 작게 유지 예를 들어, 레코드 단위로 잠금을 걸어 데이터베이스 성능을 극대화
 
+## Redis Cluster
+- Cluster data 샤딩을 하여 샤드가 독립적으로 데이터 관리
+- Sentinel 과 장애 복구 방식은 다르게 없음
+- Sentinel 사용시 단일 TPS 8,000 ~ 100,000 으로 선형적 확장이 가능한 cluster 가 대규모 트래픽에서는 더 좋은 방법임
+- 최소 node 수는 Master 10 / Slave 10 으로 20개의 노드로 구성, rds 1 primary + 2 read replica 구성
+- 주요 읽기 요청은 redis cluster 에서 처리하고 쓰기 및 consistency data 는 rds 로 처리
+
 
 
 
