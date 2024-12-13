@@ -1,0 +1,5 @@
+[mysqld]
+server-id=2                # Replica의 고유 ID
+relay-log=relay-bin        # Relay Log 설정
+log-bin=mysql-bin          # Binary Log 활성화 (필요 시)
+read-only=1                # Replica는 기본적으로 읽기 전용

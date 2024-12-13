@@ -3,6 +3,7 @@ package org.project.ecommerce.fulfillment.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,7 +20,7 @@ public class FulfillmentCenter {
     private String name;
 
     @OneToMany(mappedBy = "fulfillmentCenter")
-    private List<Inbound> inbound;
+    private List<Inbound> inbound=new ArrayList<>();
 
 
 }
