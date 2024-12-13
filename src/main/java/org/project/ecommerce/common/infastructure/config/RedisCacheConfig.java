@@ -1,4 +1,4 @@
-package org.project.ecommerce.fulfillment.infrastructure;
+package org.project.ecommerce.common.infastructure.config;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;

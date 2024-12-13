@@ -43,13 +43,6 @@ public class Inbound {
                 .build();
     }
 
-    public void updateItemCount(int newCount) {
-        if (newCount < 0) {
-            throw new IllegalArgumentException("Item count cannot be negative");
-        }
-        this.itemCount = newCount;
-    }
-
     @Builder
     public Inbound(Sku sku, FulfillmentCenter fulfillmentCenter, int itemCount, LocalDateTime inboundDate) {
         this.sku = sku;

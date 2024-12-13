@@ -1,32 +1,143 @@
 services:
-  mysql:
+  # MySQL Master
+  db-master:
     image: mysql:8.0
-    ports:
-      - "3306:3306"
-    container_name: commerce-db
+    container_name: commerce-db-master
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: commerce
       MYSQL_USER: ${DATABASE_USERNAME}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-master-data:/var/lib/mysql
+      - ./master.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - app-network
 
-  redis:
+  # MySQL Replica
+  db-replica:
+    image: mysql:8.0
+    container_name: commerce-db-replica
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: commerce
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-replica-data:/var/lib/mysql
+      - ./replica.cnf:/etc/mysql/conf.d/my.cnf
+    depends_on:
+      - db-master
+    networks:
+      - app-network
+
+  # Redis Cluster
+  redis-node1:
     image: redis:latest
-    container_name: redis-container
+    container_name: redis-node1
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000 --port 6379
+      --bind 0.0.0.0
+      --cluster-announce-ip 192.168.0.39
+      --cluster-announce-port 6379
+      --cluster-announce-bus-port 16379
     ports:
       - "6379:6379"
-    volumes:
-      - redis-data:/data
+      - "16379:16379"
+    networks:
+      - app-network
+
+  redis-node2:
+    image: redis:latest
+    container_name: redis-node2
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000 --port 6380
+      --bind 0.0.0.0
+      --cluster-announce-ip 192.168.0.39
+      --cluster-announce-port 6380
+      --cluster-announce-bus-port 16380
+    ports:
+      - "6380:6380"
+      - "16380:16380"
+    networks:
+      - app-network
+
+  redis-node3:
+    image: redis:latest
+    container_name: redis-node3
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000 --port 6381
+      --bind 0.0.0.0
+      --cluster-announce-ip 192.168.0.39
+      --cluster-announce-port 6381
+      --cluster-announce-bus-port 16381
+    ports:
+      - "6381:6381"
+      - "16381:16381"
+    networks:
+      - app-network
+  redis-node4:
+    image: redis:latest
+    container_name: redis-node4
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000 --port 6382
+      --bind 0.0.0.0
+      --cluster-announce-ip 192.168.0.39
+      --cluster-announce-port 6382
+      --cluster-announce-bus-port 16382
+    ports:
+      - "6382:6382"
+      - "16382:16382"
+    networks:
+      - app-network
+
+  redis-node5:
+    image: redis:latest
+    container_name: redis-node5
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000 --port 6383
+      --bind 0.0.0.0
+      --cluster-announce-ip 192.168.0.39
+      --cluster-announce-port 6383
+      --cluster-announce-bus-port 16383
+    ports:
+      - "6383:6383"
+      - "16383:16383"
+    networks:
+      - app-network
+
+  redis-node6:
+    image: redis:latest
+    container_name: redis-node6
+    command: >
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
+      --cluster-node-timeout 5000 --port 6384
+      --bind 0.0.0.0
+      --cluster-announce-ip 192.168.0.39
+      --cluster-announce-port 6384
+      --cluster-announce-bus-port 16384
+    ports:
+      - "6384:6384"
+      - "16384:16384"
     networks:
       - app-network
 
 volumes:
-  mysql-data:
-  redis-data:
+  mysql-master-data:
+  mysql-replica-data:
+  redis-node1-data:
+  redis-node2-data:
+  redis-node3-data:
+
 networks:
   app-network:
     driver: bridge
