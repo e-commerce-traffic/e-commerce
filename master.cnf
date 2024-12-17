@@ -1,4 +1,9 @@
 [mysqld]
-server-id=1                # Master의 고유 ID (Replica와 겹치면 안 됨)
-log-bin=mysql-bin          # Binary Log 활성화
-binlog-format=ROW          # 복제에 적합한 형식 (ROW 권장)
+bind-address=0.0.0.0
+server-id=1
+log-bin=mysql-bin
+binlog-format=ROW
+binlog-do-db=commerce
+gtid_mode=ON
+enforce_gtid_consistency=ON
+log_slave_updates=ON

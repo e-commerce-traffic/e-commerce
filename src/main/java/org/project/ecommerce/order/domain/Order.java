@@ -21,7 +21,7 @@ public class Order {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(name = "idempotency_id", nullable = false)
+    @Column(name = "idempotency_key", nullable = false)
     private String idempotencyKey;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
