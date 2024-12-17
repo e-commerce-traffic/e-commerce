@@ -1,4 +1,4 @@
-    package org.project.ecommerce.order.application;
+package org.project.ecommerce.order.application;
 
 import lombok.RequiredArgsConstructor;
 import org.project.ecommerce.fulfillment.domain.*;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-    private final RedisTemplate<String,Integer> redisTemplate;
+    private final RedisTemplate<String, Integer> redisTemplate;
     private final VendorItemRepository vendorItemRepository;
     private final SkuRepository skuRepository;
     private final InboundRepository inboundRepository;
@@ -25,9 +25,11 @@ public class OrderService {
     private final VendorItemSkuRepository vendorItemSkuRepository;
 
     private static final String REDIS_STOCK_KEY_PREFIX = "stock:vendorItem:";
+
     /**
      * 주문 생성 로직
-     * @param dto userId, vendor_item_id, count 리스트 포함
+     *
+     * @param dto            userId, vendor_item_id, count 리스트 포함
      * @param idempotencyKey 멱등성 키
      */
     @Transactional
@@ -39,7 +41,7 @@ public class OrderService {
         }
 
         // 2. Order 엔티티 생성
-        Order order = Order.create(dto.getUserId(), idempotencyKey, new ArrayList<>());
+        Order order = Order.create(dto.getUserId(), idempotencyKey);
 
         for (OrderItemDto itemDto : dto.getOrderItem()) {
             Long vendorItemId = itemDto.getVendorItemId();
@@ -87,9 +89,14 @@ public class OrderService {
             chosenSku.decrementStock(chosenSku.getStockCount() - requiredCount);
             skuRepository.save(chosenSku);
 
-            // OrderItem 생성
-            OrderItem orderItem = OrderItem.create(vendorItem, chosenSku, requiredCount, order);
-            order.getOrderItems().add(orderItem);
+//            // OrderItem 생성
+//            OrderItem orderItem = OrderItem.create(vendorItem, chosenSku, requiredCount, order);
+//            order.getOrderItems().add(orderItem);
+
+            // OrderItem 추가
+            order.addOrderItem(vendorItem, chosenSku, requiredCount);
+
+
         }
 
         orderRepository.save(order);
