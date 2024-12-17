@@ -1,9 +1,11 @@
 package org.project.ecommerce.order.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.project.ecommerce.fulfillment.domain.Sku;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "orders")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,30 +32,27 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    // Builder나 생성자는 Order 객체 초기 생성 시 한 번만 사용
     @Builder
-    public Order(Long userId, String idempotencyKey, LocalDateTime createdAt) {
+    private Order(Long userId, String idempotencyKey, LocalDateTime createdAt) {
         this.userId = userId;
         this.idempotencyKey = idempotencyKey;
         this.createdAt = createdAt;
     }
 
-
-    public static Order create(Long userId, String idempotencyKey, List<OrderItem> orderItems) {
-        Order order = Order.builder()
+    public static Order create(Long userId, String idempotencyKey) {
+        return Order.builder()
                 .userId(userId)
                 .idempotencyKey(idempotencyKey)
                 .createdAt(LocalDateTime.now())
                 .build();
-
-        orderItems.forEach(item -> order.addOrderItem(
-                OrderItem.create(item.getVendorItem(), item.getSku(), item.getItemCount(), order)
-        ));
-
-        return order;
     }
 
-    // 연관 관계 편의 메서드
-    private void addOrderItem(OrderItem orderItem) {
-        orderItems.add(orderItem);
+    // 연관관계 편의 메서드: 여기서 OrderItem을 생성하고 바로 리스트에 추가
+    public void addOrderItem(VendorItem vendorItem, Sku sku, int itemCount) {
+        OrderItem orderItem = OrderItem.create(vendorItem, sku, itemCount, this);
+        this.orderItems.add(orderItem);
     }
+
+
 }

@@ -12,4 +12,6 @@ public interface InboundRepository extends JpaRepository<Inbound,Long> {
     int suItemCountBySku(@Param("skuId") Long skuId);
 
     List<Inbound> findBySkuId(Long skuId);
+
+    List<Inbound> findAllBySkuInOrderByInboundDateAsc(List<Sku> skus);
 }

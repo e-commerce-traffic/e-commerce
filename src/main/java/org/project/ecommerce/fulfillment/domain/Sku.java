@@ -32,6 +32,16 @@ public class Sku {
         this.stockCount += count;
     }
 
+    public void decrementStock(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Decrement count must be positive");
+        }
+        if (this.stockCount < count) {
+            throw new IllegalStateException("Not enough stock");
+        }
+        this.stockCount -= count;
+    }
+
     @Builder
     public Sku(Long id, List<VendorItemSku> vendorItemSkus, int stockCount) {
         this.id = id;

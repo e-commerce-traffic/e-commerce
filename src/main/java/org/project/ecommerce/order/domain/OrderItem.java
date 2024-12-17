@@ -1,7 +1,7 @@
 package org.project.ecommerce.order.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.project.ecommerce.fulfillment.domain.Sku;
@@ -9,7 +9,7 @@ import org.project.ecommerce.fulfillment.domain.Sku;
 @Getter
 @Entity
 @Table(name = "order_item")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,27 +32,19 @@ public class OrderItem {
     @Column(nullable = false)
     private int itemCount;
 
-    public static OrderItem create(VendorItem vendorItem,Sku sku ,int itemCount,Order order) {
-
-        return OrderItem.builder()
-                .vendorItem(vendorItem)
-                .sku(sku)
-                .itemCount(itemCount)
-                .order(order)
-                .build();
+    // 정적 팩토리 메서드를 통한 생성
+    public static OrderItem create(VendorItem vendorItem, Sku sku, int itemCount, Order order) {
+        return new OrderItem(vendorItem, sku, itemCount, order);
     }
-    @Builder
-    public OrderItem(VendorItem vendorItem, Sku sku, int itemCount, Order order) {
+
+    // Builder 대신 생성자를 통해 불변하게 관계 설정
+    private OrderItem(VendorItem vendorItem, Sku sku, int itemCount, Order order) {
         this.vendorItem = vendorItem;
         this.sku = sku;
         this.itemCount = itemCount;
         this.order = order;
     }
 
-    // 양방향 관계를 설정하기 위해 Order 설정
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
 
 }
