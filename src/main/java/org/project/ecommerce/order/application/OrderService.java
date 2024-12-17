@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-    private final RedisTemplate<String, Integer> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final VendorItemRepository vendorItemRepository;
     private final SkuRepository skuRepository;
     private final InboundRepository inboundRepository;
