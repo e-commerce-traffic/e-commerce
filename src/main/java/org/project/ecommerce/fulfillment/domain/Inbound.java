@@ -1,11 +1,9 @@
 package org.project.ecommerce.fulfillment.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.project.ecommerce.order.domain.Sku;
 
 
 import java.time.LocalDateTime;
@@ -14,7 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "inbound")
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 public class Inbound {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,13 +32,7 @@ public class Inbound {
     @JoinColumn(name = "sku_id", nullable = false)
     private Sku sku;
 
-    @Builder
-    public Inbound(Sku sku, FulfillmentCenter fulfillmentCenter, int itemCount, LocalDateTime inboundDate) {
-        this.sku = sku;
-        this.fulfillmentCenter = fulfillmentCenter;
-        this.itemCount = itemCount;
-        this.inboundDate = inboundDate;
-    }
+
 
     public static Inbound create(Sku sku, FulfillmentCenter fulfillmentCenter, int itemCount) {
         return Inbound.builder()
@@ -50,6 +41,14 @@ public class Inbound {
                 .itemCount(itemCount)
                 .inboundDate(LocalDateTime.now())
                 .build();
+    }
+
+    @Builder
+    public Inbound(Sku sku, FulfillmentCenter fulfillmentCenter, int itemCount, LocalDateTime inboundDate) {
+        this.sku = sku;
+        this.fulfillmentCenter = fulfillmentCenter;
+        this.itemCount = itemCount;
+        this.inboundDate = inboundDate;
     }
 
 }
