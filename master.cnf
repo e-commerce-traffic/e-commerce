@@ -1,0 +1,9 @@
+[mysqld]
+bind-address=0.0.0.0
+server-id=1
+log-bin=mysql-bin
+binlog-format=ROW
+binlog-do-db=commerce
+gtid_mode=ON
+enforce_gtid_consistency=ON
+log_slave_updates=ON
