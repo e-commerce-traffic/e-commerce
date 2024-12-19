@@ -65,8 +65,8 @@
 ## 읽기/쓰기 TPS 증가 시 고려사항
 
 ### 읽기 TPS 증가 (재고 조회)
-- 캐시(H 핫아이템)에 해당하는 재고를 Redis/Memcached에 상주시켜 마이크로초 단위 응답
-- NoSQL(Cassandra) 파티션 키 설계로 특정 노드에 과부하가 가지 않도록 분산
+- 캐시 에 해당하는 재고를 Redis 에 상주시켜 마이크로초 단위 응답
+- NoSQL 파티션 키 설계로 특정 노드에 과부하가 가지 않도록 분산
 - 읽기 TPS 5,000,000에서 Cassandra 클러스터 노드 수를 수십 대까지 확장 가능 (실제 노드 수는 HW 스펙에 따라 상이)
 - Redis 클러스터링 및 샤딩으로 In-memory 캐시 확장
 
@@ -78,10 +78,10 @@
 - Inbound 및 Order Command 처리량 증가 시 마이크로서비스 인스턴스 수 확대(Auto scaling)로 대응
 
 ### 가용성과 동시성
-- Cassandra: 노드 n개 중 RF(Replication Factor)에 따라 노드 장애에도 읽기/쓰기가 가능한 Eventual Consistency 기반. 가용성 99.99% 이상 확보 가능
-- Redis Cluster: 리더-팔로워 구조를 통한 자동 페일오버, M 가용성을 위한 다중 Replica 구성
-- Kafka: 파티션 리플리케이션 및 브로커 장애 시 리더 전환으로 높은 가용성
-- 마이크로서비스: Stateless 설계로 인스턴스 장애 시 로드밸런서+오토스케일링을 통해 무중단 서비스
+- Cassandra: 노드 n개 중 Replication Factor 에 따라 노드 장애에도 읽기/쓰기가 가능한 Eventual Consistency 기반. 가용성 99.99% 이상 확보 가능
+- Redis Cluster: 리더-팔로워 구조를 통한 자동 fail-Over, M 가용성을 위한 다중 Replica 구성
+- Kafka: Partition Replication 및 broker 장애 시 리더 전환으로 높은 가용성
+- 마이크로서비스: Stateless 설계로 인스턴스 장애 시 LB+Auto Scaling 을 통해 무중단 서비스
 
 **수치 예시**(가정):
 - Cassandra 노드 10대 구성 시 초당 수백만 건 읽기 + 수십만 건 쓰기 처리 가능 (하드웨어 스펙 및 최적화에 따라 변동)
