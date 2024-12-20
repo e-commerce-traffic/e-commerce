@@ -1,5 +1,5 @@
 ## Architecture Diagram
-![Alt text](./update-arc.png)
+![Alt text](./pipe-line-diagram.png)
 
 # 아키텍처 설계 문서
 
