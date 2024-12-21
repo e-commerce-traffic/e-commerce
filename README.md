@@ -1,5 +1,6 @@
 ## Architecture Diagram
 ![Alt text](./pipe-line-diagram.png)
+![Alt text](./seq-diagram.png)
 
 # 아키텍처 설계 문서
 
