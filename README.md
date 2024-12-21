@@ -1,6 +1,18 @@
 ## Architecture Diagram
+### PipeLine-Diagram
 ![Alt text](./pipe-line-diagram.png)
+
+### 전체 시퀀스 다이어그램
 ![Alt text](./seq-diagram.png)
+
+### 재고조회 시퀀스 다이어그램
+![Alt text](./stock-seq-diagram.png)
+
+### 입고 시퀀스 다이어그램
+![Alt text](./inbound-seq-diagram.png)
+
+### 주문 시퀀스 다이어그램
+![Alt text](./order-seq-diagram.png)
 
 # 아키텍처 설계 문서
 
