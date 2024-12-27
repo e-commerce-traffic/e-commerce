@@ -11,99 +11,146 @@
 
 ![Alt text](https://lh3.googleusercontent.com/fife/ALs6j_F50Po-GrE1M217Fft2iLS-HHsR4RxvhOgZyE3qM32KSWjaITpjP5tHpsFP9uaoEzFYpmD_HwBtlnJROseaOtSsRwXsFpa7_RbedlwajRi10qUWxQAGD6bYH4QIeji9nfbzS24snHU4H_snG5t4HLdg_gepGRpoi3xtTxNRQH0egJZNHwN640ozjIMpWK2nruEZjMxB-loVwT9IXPm9CmdBOP6ZaYlse4EKTSDxhpPZFILBfRp_qbAbGDUz0Bg9B35p-i4hdj2Se1WdrazanBjO2ZMj4NumsIFXdMj4cV1vhdzTa5j-SCsD2pgFb2PF1v60AmrKmPytgQAnx3Y71-xpHWFL9AeALG343mJKhQgE-hspo6AvJBXRXTj3pAeu2P86lRASBagb9AiNwSUMwfc35HX3MRdnJ0yW0nI_7G9CU1UfsguuUj_mEAzPoyOD2ATE-UQ5AzQ6e61Tq2VQKoQ65lfWdi9jc9n5nV03agTElMHQClG-VvqqwzZrYg5pAs1EfSetqpr_N_K8p2BkQj91sd1a0NmedF_yxBhDw28YP7zHgR6K4mKfhsQBLzIdkzK03e6PgToCCLXrc44ppKJp5UtYFx4RT9e1qm51mcqKzMsfXQSADNc6IFZIsYKYCR-EsOU40_C-ytNkMT7Q8YI4_XoRrG9wVKS7TGvmsePsT6FIRMX4wnYsoFS2f6Eq6e1ql1Y4nEBGwKqMV36VVsXQtXZpabe33vlvI6q9WCSQpdr-QgK5MxFLdZ_SCpE4neNSusQLPFN7RZypJzn0i87D7z_AvTSj3Jb5YcXNY-yeMDY-4Q7Nfw-inCG1k4NHq_vutEQTSU7DNWFvD1zwwkDHricEy_nZ67_ZdM96H6TOCIrBDpFoUizT_PTJSBT1JsOCe6xFc5le6juiVlRmt4qVmkU2lhJaElxeBwv_rDU13lNG7TRJccn674r7yghbEHwGUmdvLX2fJ5heUwFbtdAlLNEGD4Bpj3KpVlJQOdW3j4KDnTPNL8T3NZitTE-EryiKCwVXjKy5-Oy89yaf6moxgz-o0ulh-G28ks0mZm8UvFyy4omCvlCN_U97VhZHMCT6q-Fq_1HrWidR8SugX4kT5QrWFTUs3-e_7YmnB7xMFKWB-aO7GKSTsC_NXaFI6FztLqmbrBXHyFzaxH07Vu4MSkG8ak1ZIxoe7QDN-URpSJ438YxOuzpgFUYsC5FcNGk01Wl0wLcXvRMAaR914yyygnlnnz_FzqA0cU01HZLiFsSgokwQE04_pjXHSnbdelpjaNIWN-v8_Zz2_G6hiANSQeWO3UmpfUn4KEBZjwF7Dn4RFYD9qH-1_ZQaBHlOgQpfZ78xJ1v9RNgV6drtlSUbz55hflYYEl-2nzVakynVd1UlTME9CDIqXtcVtCtkT7LkSmw5els6Rc4__ZfM_-JCjwclEkhmHuCH-QBokCJ65AtQlzBAyVnhpinSR2kuVNqlMa9GqDgUmK0v31J47bd5HahsLnD0_AwpnmSVZZQpmlrC0TMvwt0Mf_p0_rBYfXFqFtbYdbzTt5V3avO1dewrfv1ouUAe-GWnXKJgRyeNHvK_xOw14Q_7HKJN1lFpimdlg_vu=w1088-h1006)
 
-# 아키텍처 설계 문서
+# 재고 조회 시스템 아키텍처 설계 문서
 
-## 개요 (Overview)
-본 아키텍처는 초고 트래픽(초당 수백만 TPS)에 대응하기 위한 재고 조회/주문/입고 시스템을 설계한 것이다. 이벤트성 상품(예: 갤럭시 이벤트)으로 재고 조회 요청이 폭증할 때, 재고 상태를 효과적으로 관리하고 빠른 응답을 제공하기 위해 NoSQL 및 캐시, 이벤트 기반 구조를 활용한다.
+## 1. 개요 (Overview)
+애플 이벤트 등 특정 시점에 **재고 조회 API** 트래픽이 **초당 약 5백만 건**까지 폭증할 수 있다.  
+이 문서는 관계형 데이터베이스(RDB)로는 감당하기 어려운 대규모 읽기 트래픽을 **무중단(Seamless)으로 확장**하기 위한 시스템 설계 방향을 제시한다.  
+데이터 일관성(Consistency)과 성능(Scalability) 간의 트레이드오프가 존재하지만, **결국 읽기 트래픽이 증가해도 안정적으로 대응**할 수 있는 구조가 핵심이다.
 
-## 목표 (Goals)
-- **초고속 재고 조회 처리**: 재고 조회 API 요청에 대해 마이크로초~밀리초 단위 응답을 제공.
-- **유연한 확장성(Scalability)**: 트래픽 증가에 따라 무중단으로 수평 확장 가능한 구조.
-- **고가용성(High Availability)**: 장애 발생 시에도 서비스를 지속적으로 제공할 수 있는 구조.
-- **데이터 정합성(Consistency) 유지**: 주문/입고 시점에 재고량 정확성 보장.
+---
 
-## 요구사항 (Requirements)
-- 초당 5,000,000 건 이상의 재고 조회 요청 처리.
-- 특정 이벤트 상품에 대한 조회 폭증 시에도 안정적인 응답 시간 유지.
-- 주문 처리 시 재고가 부족하면 에러 반환.
-- 입고 처리 시 재고 수량 증가 반영.
-- 외부 시스템(배송, 결제 등)과의 비동기 연동
+## 2. 요구사항 (Requirements)
+1. **재고 조회 API**:
+    - 초당 5,000,000 건 이상의 요청을 처리해야 함.
+    - 트래픽 증가(예: 애플 이벤트 시점) 시에도 **원활히 확장** 가능할 것.
+2. **읽기 트래픽 중심**:
+    - RDB로는 감당이 불가능하므로 NoSQL 기반 아키텍처 고려.
+3. **데이터 정합성**:
+    - 주문/입고와 같은 쓰기 연산 후, 조회 데이터가 큰 지연 없이 반영되어야 함(완전한 Strong Consistency는 어려울 수 있음).
+    - 필요 시 이벤트 기반(Outbox → 메시지 브로커 → Consumer)을 통한 **일관성(Consistency) 보완**.
+4. **무중단(Seamless) 스케일 아웃**:
+    - 노드 추가를 통해 읽기 처리량을 선형적으로 확장할 수 있어야 함.
 
-1. **API 레이어**:
-    - API Gateway를 통해 재고 조회(API), 주문 처리(API), 입고(API)를 라우팅.
-   
-2. **데이터 레이어 (NoSQL + 캐시)**:
-    - **NoSQL**: 재고 상태를 Key-Value 또는 Wide-Column 형태로 관리.
-    - **캐시(Redis/Memcached)**: 초고속 조회를 위한 인메모리 캐싱. 특정 "핫아이템"만 캐시해 비용 및 메모리 사용 최적화.
-    - **RDB(샤딩된 클러스터)**: 주문 영구 저장 및 SKU/Vendor_Item 메타데이터 관리.
+---
 
-3. **이벤트 기반 처리 레이어**:
-    - 메시지 브로커(Kafka 또는 RabbitMQ)를 통한 비동기 이벤트 처리.
-    - 주문 이벤트 발행 후, 재고 서비스 또는 주문 서비스가 이벤트를 구독해 상태 변경.
-    - 외부 시스템 통지 및 Saga(필요 시) 패턴으로 확장 가능.
+## 3. 아키텍처 전반 (High-Level Architecture)
 
-## 기술 선택 근거 (Technology Choices)
+1. **API Gateway**
+    - 재고 조회 API를 수신하고, **QueryService**(또는 NoSQL DB)로 라우팅.
+    - (주문/입고 등 쓰기 API는 참고만, 구체적인 로직은 별도 문서에서 다룸)
 
-### NoSQL 선택 이유 (Cassandra 또는 MongoDB)
-- **Cassandra**:
-    - 선형적 스케일 아웃(노드를 추가하면 읽기/쓰기 처리량이 선형적으로 증가)
-    - 높은 쓰기 성능과 빠른 읽기 응답
-    - Masterless 아키텍처로 노드 장애 발생 시에도 자동 페일오버 및 높은 가용성
-    - 파티션 키를 통한 균등한 부하 분산
+2. **데이터 레이어**
+    - **NoSQL (Cassandra)**:
+        - 대규모 **읽기 트래픽**을 처리하기 위해 채택.
+        - 노드를 추가하면 읽기·쓰기 성능이 선형적으로 확장(Scale-out).
+        - 이벤트성 트래픽 폭주 시에도 확장성 확보 가능.
+    - **스키마(예시)**:
+        - 테이블: `stocks`
+            - Partition Key: `(vendor_item_id, fulfillment_center_id)`
+            - Column: `stock_count`, `updated_at` 등
+        - 조회 시:
+          ```sql
+          SELECT stock_count
+          FROM stocks
+          WHERE vendor_item_id = :vid
+            AND fulfillment_center_id = :fid
+          ```
+        - 이 구조로 **RDB 대비 훨씬 낮은 지연, 높은 처리량**을 달성.
 
-- **MongoDB**:
-    - Document 지향 모델로 유연한 스키마 관리
-    - Sharding 기능을 통해 수평 확장 가능
-    - 풍부한 Secondary Index 지원(단, 인덱스 관리 비용 고려)
-    - 범용적인 데이터 모델링이 유리할 경우 선택
+3. **이벤트 기반 처리 (Outbox + 메시지 브로커)**
+    - **Outbox**: 주문/입고 트랜잭션 시 재고 변경 이벤트를 기록(원자적).
+    - **메시지 브로커 (Kafka 등)**: Outbox 이벤트를 수집하여 Consumer로 전달.
+    - **Consumer**: Cassandra `stocks` 테이블(또는 추가 조회용 테이블)에 필요한 업데이트를 반영.
+    - 이를 통해 **데이터 정합성**을 어느 정도 유지하면서, **쓰기 부하와 읽기 부하를 분리**.
 
-**결정 포인트:**
-- 재고 조회/차감과 같이 단순 Key 기반 접근 및 선형적 확장성이 중요한 경우 Cassandra를 선호
-- SKU나 Vendor_item에 대한 다양한 질의 패턴, 문서 형태 저장이 유용하다면 MongoDB 고려
-- 본 아키텍처는 **단순 키 기반 조회(fulfillment_center_id:sku_id)로 재고 접근**하므로 Cassandra를 추천 
-- Cassandra는 TPS 증가 시 노드를 추가해 성능을 거의 선형적으로 올릴 수 있고, 쓰기/읽기 모두 짧은 레이턴시를 제공함
+---
 
-### 메시지 브로커 (Kafka 또는 RabbitMQ)
-- Kafka: 고성능, 파티션 기반 확장, 주문 이벤트와 같은 대량 이벤트 처리에 적합
-- RabbitMQ: 메시지 라우팅 플렉서블, 다양한 프로토콜 지원, 소규모 이벤트 처리에도 용이
+## 4. 주요 포인트
 
-**결정 포인트:**
-- 대용량 스트림성 이벤트와 확장성 중시 → Kafka
-- 복잡한 라우팅, 다양한 패턴 지원 필요 → RabbitMQ
+### 4.1. 왜 RDB가 아닌가?
+- **RDB**는 수직 확장(Scale-up) 한계가 있고, **5백만 TPS** 같은 초대형 트래픽을 처리하기 위한 샤딩 설계가 매우 복잡해짐.
+- 반면 **Cassandra**는 노드를 늘림에 따라 **선형적**(Linear)으로 읽기 성능을 올릴 수 있음.
+### 4.1.2 RDB 샤딩(Sharding) 복잡도
+- **수평 확장**을 위해서는 샤딩(Sharding)이 필수.
+- MySQL 자체로 대규모 샤딩을 구성하면:
+    1) 샤딩 키 결정이 까다롭고,
+    2) 샤드 간 트랜잭션, 조인, 인덱스 관리 등이 복잡해짐.
+    3) 샤드 증설/축소 시 **스키마 관리**, **리밸런싱** 작업에 많은 리소스 투입.
+- 재고가 **N개의 vendor_item**과 **M개의 fulfillment_center**로 분산될 때, 올바른 샤딩 키 설계가 어렵고, 실시간으로 급증하는 트래픽에 대응하기도 번거롭다.
 
+### 4.1.3 쓰기·읽기 분산(Read Replica) 한계
+- RDB(Master-Slave) 구조로 **읽기 부하**를 Slave 노드로 분산하려 해도:
+    1) **Replication Lag**가 발생해 읽기 일관성이 깨질 수 있음.
+    2) Master 노드 부담(쓰기 + binlog 전송)은 여전히 존재.
+    3) **Slave 노드** 추가 시 하드웨어 비용 증가, 장애 시 재구성이 복잡.
 
-## 읽기/쓰기 TPS 증가 시 고려사항
+### 4.1.4 고가용성(HA) 및 무중단 확장 어려움
+- MySQL 8 버전에서 Group Replication, InnoDB Cluster 등을 구성해도:
+    1) 노드 증설 시 자동 리밸런싱/파티셔닝이 아닌 **별도 작업** 필요.
+    2) 쿼리 부하 집중 시 Master 변경, Failover 시 **순간적 다운타임** 불가피.
 
-### 읽기 TPS 증가 (재고 조회)
-- 캐시 에 해당하는 재고를 Redis 에 상주시켜 마이크로초 단위 응답
-- NoSQL 파티션 키 설계로 특정 노드에 과부하가 가지 않도록 분산
-- 읽기 TPS 5,000,000에서 Cassandra 클러스터 노드 수를 수십 대까지 확장 가능 (실제 노드 수는 HW 스펙에 따라 상이)
-- Redis 클러스터링 및 샤딩으로 In-memory 캐시 확장
+### 4.1.4 결론
+- **수백만 TPS** 규모의 읽기 트래픽을 위해 MySQL 8 기반 RDB를 확장하려면,
+    - **복잡한 샤딩** 전략,
+    - 여러 **Read Replica** 운용,
+    - Cluster/Group Replication 관리 등이 필요하며,
+    - 장애 대응 및 운영 비용이 매우 커진다.
 
-### 쓰기 TPS 증가 (주문/입고)
-- 쓰기 부하 증가 시 Cassandra의 선형적 스케일링 활용: 노드 추가로 Write TPS 확장
-- Cassandra는 수만~수십만 TPS 수준의 쓰기에도 노드 증설로 대응 가능
-- MongoDB 샤딩 시 각 샤드에 쓰기 부하를 분산, 샤드 추가로 수평 확장
-- 이벤트 버스(Kafka) 파티션 증가로 주문 이벤트 처리량 증가
-- Inbound 및 Order Command 처리량 증가 시 마이크로서비스 인스턴스 수 확대(Auto scaling)로 대응
+> 따라서 **Key-Value/Wide-Column** 중심으로 **선형 확장**이 용이한 **NoSQL(Cassandra)** 전환이 적합하다고 판단.
 
-### 가용성과 동시성
-- Cassandra: 노드 n개 중 Replication Factor 에 따라 노드 장애에도 읽기/쓰기가 가능한 Eventual Consistency 기반. 가용성 99.99% 이상 확보 가능
-- Redis Cluster: 리더-팔로워 구조를 통한 자동 fail-Over, M 가용성을 위한 다중 Replica 구성
-- Kafka: Partition Replication 및 broker 장애 시 리더 전환으로 높은 가용성
-- 마이크로서비스: Stateless 설계로 인스턴스 장애 시 LB+Auto Scaling 을 통해 무중단 서비스
+### 4.2. 데이터 정합성 vs. 성능(확장성)
+- Cassandra는 **Eventual Consistency** 모델을 사용(강한 일관성을 특정 조건에서만 허용).
+- 주문/입고 시점에 즉시 강한 일관성을 보장하려면 쓰기 지연이 늘어남.
+- Outbox+브로커+Consumer 흐름을 사용하면, **이벤트 유실 없이** 조회 DB(또는 Cassandra 테이블)에 반영 가능.
+- 결과적으로 **읽기 스케일 아웃**을 우선하며, **일관성은 특정 시간 단위로 빠르게 수렴**하도록 설계.
 
-**수치 예시**(가정):
-- Cassandra 노드 10대 구성 시 초당 수백만 건 읽기 + 수십만 건 쓰기 처리 가능 (하드웨어 스펙 및 최적화에 따라 변동)
-- Redis 샤드 5~10개, 각각 단일 샤드당 수십만 TPS 처리 가능(메모리 및 네트워크 환경에 따라 상이)
-- Kafka 파티션 100개 이상으로 분할하면 수십만~수백만 TPS 이벤트 처리 가능(브로커 수 및 디스크/네트워크 스펙 고려)
+### 4.3. 읽기 트래픽 증가 대응
+- **노드 증설**: Cassandra는 노드를 추가함으로써 읽기·쓰기 처리량을 선형 확대 가능.
+- **데이터 파티셔닝**: `(vendor_item_id, fulfillment_center_id)` 같은 복합 파티션 키로 특정 노드에 부하가 몰리지 않도록 설계.
+- **모니터링 & 오토스케일링**: CPU, I/O, Latency 지표 등을 모니터링 후, 일정 임계치 이상 도달 시 노드를 자동 추가(무중단).
 
-## 데이터베이스 및 캐시 구조
+---
 
-- **재고 DB (Cassandra)**:
-    - Partition Key: `vendor_item_id`
-    - Clustering Key: `fulfillment_center_id`
-    - Value: 재고 수량(stock_count), 마지막 업데이트 시각 등
-    - 조회/쓰기는 Key 단위 O(1)에 가까운 접근 제공
+## 5. 동작 시나리오 개요
 
+### 5.1. 재고 조회(Reading Stocks)
+1. 클라이언트(또는 사용자) → API Gateway → **QueryService**
+2. QueryService → Cassandra (stocks 테이블)
+3. Cassandra에서 `stock_count`를 반환
+4. QueryService → API Gateway → 클라이언트 응답
+
+> **트래픽 폭주** 시에도 Cassandra 노드 증설을 통해 처리 가능.
+
+### 5.2. 재고 변경(주문/입고)
+1. 클라이언트 → API Gateway → **CommandService** (세부 로직은 별도)
+2. DB 트랜잭션 과정에서 **Outbox** 테이블에 이벤트 기록 (예: `OrderCreated`)
+3. **Outbox Poller/CDC**가 해당 이벤트를 메시지 브로커(Kafka 등)에 발행
+4. **Consumer**가 메시지를 수신하고, Cassandra `stocks` 테이블(또는 별도 Read Model)을 업데이트
+5. 조회(API)는 업데이트된 `stocks`를 기반으로 최신 재고를 확인 가능
+
+> 이 과정에서 Eventual Consistency가 발생할 수 있으나, 보통 수초 미만(또는 ms 단위) 내에 동기화 가능.
+
+---
+
+## 6. 가용성 확보 방안
+
+1. **Cassandra 클러스터**
+    - 다중 노드, Replication Factor 설정으로 **노드 장애** 시에도 Read/Write 가능.
+    - 무중단 노드 증설/교체.
+2. **메시지 브로커(Kafka)**
+    - 다중 브로커, 파티션 복제 설정으로 **브로커 장애** 시에도 파티션 리더 전환.
+    - Outbox 기반으로 이벤트를 재시도하므로 메시지 유실 방지.
+3. **마이크로서비스**
+    - Stateless 인스턴스 설계 + Load Balancer + Auto Scaling.
+    - 특정 인스턴스 장애 시 다른 인스턴스로 트래픽을 우회.
+
+---
+
+## 7. 결론
+- **5백만 TPS**의 재고 조회 트래픽을 **무중단으로 스케일 아웃**하기 위해 **Cassandra**를 중심으로 설계하였다.
+- RDB 대신 NoSQL(Cassandra)을 사용하여, 읽기 부하 증가 시 노드 추가만으로 선형적 확장이 가능하다.
+- 데이터 일관성은 **Outbox + 메시지 브로커(Kafka) + Consumer** 구조로 보완하여, **Eventual Consistency**를 유지하면서도 **이벤트 누락 없이** 재고 데이터가 갱신될 수 있도록 했다.
+- 장애 상황에서도 **Masterless Cassandra**와 **Replica** 구조를 통해 고가용성(High Availability)을 달성하고, **Autoscaling**을 통해 트래픽 폭주 시 무중단 확장이 가능하다.
+- 결과적으로, 대규모 조회 트래픽을 처리함과 동시에 데이터 정합성을 어느 정도 유지하는 아키텍처를 구성할 수 있다.
     
