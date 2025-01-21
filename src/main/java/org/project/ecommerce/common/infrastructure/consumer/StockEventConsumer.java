@@ -1,9 +1,9 @@
-package org.project.ecommerce.common.infastructure.consumer;
+package org.project.ecommerce.common.infrastructure.consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.project.ecommerce.common.utils.JsonUtils;
+import org.project.ecommerce.common.infrastructure.utils.JsonUtils;
 import org.project.ecommerce.fulfillment.domain.StockRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

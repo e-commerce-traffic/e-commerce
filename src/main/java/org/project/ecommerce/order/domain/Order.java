@@ -5,7 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.project.ecommerce.common.utils.JsonUtils;
+import org.project.ecommerce.common.infrastructure.outbox.OutboxEvent;
+import org.project.ecommerce.common.infrastructure.utils.JsonUtils;
 import org.project.ecommerce.fulfillment.domain.Sku;
 
 import java.time.LocalDateTime;

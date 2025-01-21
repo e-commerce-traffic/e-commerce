@@ -1,12 +1,10 @@
-package org.project.ecommerce.order.domain;
+package org.project.ecommerce.common.infrastructure.outbox;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.project.ecommerce.common.utils.JsonUtils;
-import org.project.ecommerce.order.ui.dto.OrderCreatedEvent;
 
 import java.time.LocalDateTime;
 

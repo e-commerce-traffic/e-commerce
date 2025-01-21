@@ -1,4 +1,4 @@
-package org.project.ecommerce.order.domain;
+package org.project.ecommerce.common.infrastructure.outbox;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

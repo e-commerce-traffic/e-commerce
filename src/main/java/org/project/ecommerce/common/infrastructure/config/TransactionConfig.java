@@ -1,4 +1,4 @@
-package org.project.ecommerce.common.infastructure.config;
+package org.project.ecommerce.common.infrastructure.config;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

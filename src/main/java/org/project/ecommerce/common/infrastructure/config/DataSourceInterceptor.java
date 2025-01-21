@@ -1,6 +1,6 @@
-package org.project.ecommerce.common.infastructure.component;
+package org.project.ecommerce.common.infrastructure.config;
 
-import org.project.ecommerce.common.infastructure.route.RoutingDataSource;
+import org.project.ecommerce.common.infrastructure.route.RoutingDataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 

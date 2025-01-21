@@ -1,6 +1,6 @@
-package org.project.ecommerce.common.infastructure.config;
+package org.project.ecommerce.common.infrastructure.config;
 
-import org.project.ecommerce.common.infastructure.route.RoutingDataSource;
+import org.project.ecommerce.common.infrastructure.route.RoutingDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;

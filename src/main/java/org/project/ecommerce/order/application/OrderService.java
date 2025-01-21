@@ -2,15 +2,15 @@ package org.project.ecommerce.order.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.project.ecommerce.common.utils.JsonUtils;
+import org.project.ecommerce.common.infrastructure.outbox.OutBoxEventRepository;
+import org.project.ecommerce.common.infrastructure.utils.JsonUtils;
 import org.project.ecommerce.fulfillment.application.StockService;
 import org.project.ecommerce.fulfillment.domain.*;
 import org.project.ecommerce.order.domain.*;
-import org.project.ecommerce.order.domain.OutboxEvent;
+import org.project.ecommerce.common.infrastructure.outbox.OutboxEvent;
 import org.project.ecommerce.order.ui.dto.OrderItemDto;
 import org.project.ecommerce.order.ui.dto.OrderRequestDto;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

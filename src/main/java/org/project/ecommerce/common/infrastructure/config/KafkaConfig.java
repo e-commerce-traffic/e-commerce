@@ -1,4 +1,4 @@
-package org.project.ecommerce.common.infastructure.config;
+package org.project.ecommerce.common.infrastructure.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

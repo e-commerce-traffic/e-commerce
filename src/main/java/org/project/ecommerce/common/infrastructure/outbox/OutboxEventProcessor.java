@@ -1,9 +1,7 @@
-package org.project.ecommerce.common.infastructure.consumer;
+package org.project.ecommerce.common.infrastructure.outbox;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.project.ecommerce.order.domain.OutBoxEventRepository;
-import org.project.ecommerce.order.domain.OutboxEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package org.project.ecommerce.common.infastructure.route;
+package org.project.ecommerce.common.infrastructure.route;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 

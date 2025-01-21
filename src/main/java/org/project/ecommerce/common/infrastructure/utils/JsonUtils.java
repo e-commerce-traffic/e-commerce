@@ -1,4 +1,4 @@
-package org.project.ecommerce.common.utils;
+package org.project.ecommerce.common.infrastructure.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
