@@ -5,11 +5,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.project.ecommerce.common.utils.JsonUtils;
 import org.project.ecommerce.fulfillment.domain.Sku;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Entity
@@ -18,9 +21,10 @@ import java.util.List;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "idempotency_key", nullable = false)
@@ -29,7 +33,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     // Builder나 생성자는 Order 객체 초기 생성 시 한 번만 사용
@@ -54,5 +58,12 @@ public class Order {
         this.orderItems.add(orderItem);
     }
 
+    private OutboxEvent createStockUpdateEvent(OrderItem orderItem) {
+        Map<String, Object> payload = new HashMap<>();
 
+        payload.put("skuKey", orderItem.getSku().getId());
+        payload.put("decreasedCount", orderItem.getItemCount());
+
+        return OutboxEvent.createEvent("OrderCreated", JsonUtils.toJson(payload));
+    }
 }

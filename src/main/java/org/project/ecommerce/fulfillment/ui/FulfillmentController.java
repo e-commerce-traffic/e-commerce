@@ -17,13 +17,13 @@ public class FulfillmentController {
     private final InboundService service;
 
 
-    @GetMapping("/{vendorItemId}")
-    public ResponseEntity<Integer> getStock(@PathVariable Long vendorItemId) {
-        // 총 재고 수량 반환
-        int totalStock = service.getTotalStockByVendorItem(vendorItemId);
-        return ResponseEntity.ok(totalStock);
-    }
-
+//    @GetMapping("/{vendorItemId}")
+//    public ResponseEntity<Integer> getStock(@PathVariable Long vendorItemId) {
+//        // 총 재고 수량 반환
+//        int totalStock = service.getTotalStockByVendorItem(vendorItemId);
+//        return ResponseEntity.ok(totalStock);
+//    }
+//
 
     /**
      * 입고 api
@@ -31,10 +31,10 @@ public class FulfillmentController {
      *
      * @return void
      */
-    @PostMapping("/inbound")
-    public ResponseEntity<Void> createInbound(@RequestBody @Valid InboundRequestDto dto) {
-
-         service.createStock(dto);
-         return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/inbound")
+//    public ResponseEntity<Void> createInbound(@RequestBody @Valid InboundRequestDto dto) {
+//
+//         service.createStock(dto);
+//         return ResponseEntity.ok().build();
+//    }
 }

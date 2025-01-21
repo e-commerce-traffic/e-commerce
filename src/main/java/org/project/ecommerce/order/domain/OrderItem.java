@@ -29,7 +29,7 @@ public class OrderItem {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @Column(nullable = false)
+    @Column(name = "item_count", nullable = false)
     private int itemCount;
 
     // 정적 팩토리 메서드를 통한 생성
@@ -45,6 +45,5 @@ public class OrderItem {
         this.order = order;
     }
 
-
-
 }
+

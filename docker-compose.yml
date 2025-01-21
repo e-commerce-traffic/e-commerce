@@ -45,108 +45,64 @@ services:
     networks:
       - app-network
 
-  # Redis Cluster
-  redis-node1:
-    image: redis:latest
-    container_name: redis-node1
-    command: >
-      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
-      --cluster-node-timeout 5000 --port 6379
-      --bind 0.0.0.0
-      --cluster-announce-ip 192.168.0.39
-      --cluster-announce-port 6379
-      --cluster-announce-bus-port 16379
+  # Confluent Kafka with KRaft
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
     ports:
-      - "6379:6379"
-      - "16379:16379"
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      # Kraft 설정
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+
+      # 리스너 설정
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://kafka:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+
+      # 일반 설정
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      # Kraft 클러스터 ID
+      CLUSTER_ID: 'KafkaClusterId'
+    volumes:
+      - kafka-data:/var/lib/kafka/data
     networks:
       - app-network
 
-  redis-node2:
-    image: redis:latest
-    container_name: redis-node2
-    command: >
-      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
-      --cluster-node-timeout 5000 --port 6380
-      --bind 0.0.0.0
-      --cluster-announce-ip 192.168.0.39
-      --cluster-announce-port 6380
-      --cluster-announce-bus-port 16380
+  # Cassandra with improved configuration
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
     ports:
-      - "6380:6380"
-      - "16380:16380"
-    networks:
-      - app-network
-
-  redis-node3:
-    image: redis:latest
-    container_name: redis-node3
-    command: >
-      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
-      --cluster-node-timeout 5000 --port 6381
-      --bind 0.0.0.0
-      --cluster-announce-ip 192.168.0.39
-      --cluster-announce-port 6381
-      --cluster-announce-bus-port 16381
-    ports:
-      - "6381:6381"
-      - "16381:16381"
-    networks:
-      - app-network
-  redis-node4:
-    image: redis:latest
-    container_name: redis-node4
-    command: >
-      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
-      --cluster-node-timeout 5000 --port 6382
-      --bind 0.0.0.0
-      --cluster-announce-ip 192.168.0.39
-      --cluster-announce-port 6382
-      --cluster-announce-bus-port 16382
-    ports:
-      - "6382:6382"
-      - "16382:16382"
-    networks:
-      - app-network
-
-  redis-node5:
-    image: redis:latest
-    container_name: redis-node5
-    command: >
-      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
-      --cluster-node-timeout 5000 --port 6383
-      --bind 0.0.0.0
-      --cluster-announce-ip 192.168.0.39
-      --cluster-announce-port 6383
-      --cluster-announce-bus-port 16383
-    ports:
-      - "6383:6383"
-      - "16383:16383"
-    networks:
-      - app-network
-
-  redis-node6:
-    image: redis:latest
-    container_name: redis-node6
-    command: >
-      redis-server --cluster-enabled yes --cluster-config-file nodes.conf
-      --cluster-node-timeout 5000 --port 6384
-      --bind 0.0.0.0
-      --cluster-announce-ip 192.168.0.39
-      --cluster-announce-port 6384
-      --cluster-announce-bus-port 16384
-    ports:
-      - "6384:6384"
-      - "16384:16384"
+      - "9042:9042"  # CQL native transport port
+    environment:
+      CASSANDRA_CLUSTER_NAME: "CommerceCluster"
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 100M
+      CASSANDRA_SEEDS: "cassandra"
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    healthcheck:
+      test: [ "CMD", "cqlsh", "-e", "describe keyspaces" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
     networks:
       - app-network
 
 volumes:
   mysql-master-data:
   mysql-replica-data:
-  redis-node1-data:
-  redis-node2-data:
-  redis-node3-data:
+  cassandra-data:
+  kafka-data:
 
 networks:
   app-network:
