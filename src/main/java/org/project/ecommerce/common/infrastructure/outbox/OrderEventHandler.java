@@ -13,15 +13,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class OrderEventHandler {
     private final OutBoxEventRepository outboxRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+//    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleOrderCreated(OutboxEvent event) {
         try {
-            kafkaTemplate.send("order-created", event.getPayload());
-            event.markAsPublished();
-            outboxRepository.save(event);
+//            if ("PENDING".equals(event.getStatus())) {
+//                kafkaTemplate.send("order-created", event.getPayload());
+//                event.markAsPublished();
+                outboxRepository.save(event);
+//    }
         } catch (Exception e) {
             log.error("Failed to process event: {}", event.getPayload(), e);
             event.markAsFailed();

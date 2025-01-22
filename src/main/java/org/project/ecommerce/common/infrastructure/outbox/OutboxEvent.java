@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OutboxEvent {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "outbox_id")
@@ -24,8 +25,11 @@ public class OutboxEvent {
     @Column(columnDefinition = "json", nullable = false)
     private String payload;
 
-    @Column(nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OutboxStatus status;
+
+
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -37,9 +41,11 @@ public class OutboxEvent {
     public OutboxEvent(String eventType, String payload) {
         this.eventType = eventType;
         this.payload = payload;
-        this.status = status != null ? status : "PENDING";
+        this.status = OutboxStatus.PENDING;
         this.createdAt = LocalDateTime.now();
     }
+
+
 
     public static OutboxEvent createEvent(String eventType, String payload) {
         return OutboxEvent.builder()
@@ -48,13 +54,18 @@ public class OutboxEvent {
                 .build();
     }
 
-    public void markAsPublished() {
-        this.status = "PUBLISHED";
+    public enum OutboxStatus {
+        PENDING, PROCESSING, COMPLETED, FAILED
+    }
+
+    public void markAsCompleted() {
+        this.status = OutboxStatus.COMPLETED;
         this.publishedAt = LocalDateTime.now();
     }
 
     public void markAsFailed() {
-        this.status = "FAILED";
+        this.status = OutboxStatus.FAILED;
+        this.publishedAt = LocalDateTime.now();
     }
 
 }

@@ -19,7 +19,7 @@ public class OutboxEventProcessor {
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void processOutboxEvents() {
-        List<OutboxEvent> pendingEvents = outboxRepository.findByStatus("PENDING");
+        List<OutboxEvent> pendingEvents = outboxRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
 
         if (pendingEvents.isEmpty()) {
             return;
@@ -30,7 +30,7 @@ public class OutboxEventProcessor {
         for (OutboxEvent event : pendingEvents) {
             try {
                 kafkaTemplate.send("order-created", event.getPayload());
-                event.markAsPublished();
+                event.markAsCompleted();
                 outboxRepository.save(event);
                 log.info("Successfully retried event: {}", event.getPayload());
             } catch (Exception e) {

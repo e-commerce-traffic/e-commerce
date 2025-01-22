@@ -30,6 +30,7 @@ public class OrderService {
 
     private final StockService stockService;
     private final ApplicationEventPublisher eventPublisher;
+
     /**
      * 주문 생성 로직
      *
@@ -64,56 +65,37 @@ public class OrderService {
             Sku selectedSku = availableSku.get().getSku();
             selectedSku.decreaseStock(itemDto.getItemCount());
             skuRepository.save(selectedSku);
-            // 첫 번째 SKU 선택 및 재고 차감
-//            Sku selectedSku = vendorItem.getVendorItemSkus().get(0).getSku();
-//            log.debug("teststestes",selectedSku.toString());
-//            selectedSku.decreaseStock(itemDto.getItemCount());
-//            skuRepository.save(selectedSku);
-//
+
             order.addOrderItem(vendorItem, selectedSku, itemDto.getItemCount());
         }
 
-//        Order saveOrder = orderRepository.save(order);
-//        createOrderEvents(saveOrder);
-         // Outbox 테이블에 이벤트 저장
+
         Order saveOrder = orderRepository.save(order);
         List<OutboxEvent> events = createOrderEvents(saveOrder);
         events.forEach(eventPublisher::publishEvent);
     }
 
-//    private void createOrderEvents(Order savedOrder) {
-//        savedOrder.getOrderItems().forEach(orderItem -> {
-//            Map<String, Object> payload = new HashMap<>();
-//            payload.put("skuKey", orderItem.getSku().getId());
-//            payload.put("decreasedCount", orderItem.getItemCount());
-//
-//            OutboxEvent event = OutboxEvent.createEvent("OrderCreated", JsonUtils.toJson(payload));
-//            outboxRepository.save(event);
-//
-//        });
-//
-//    }
-private List<OutboxEvent> createOrderEvents(Order savedOrder) {
-    List<OutboxEvent> events = new ArrayList<>();
 
-    savedOrder.getOrderItems().forEach(orderItem -> {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("skuKey", orderItem.getSku().getId());
-        payload.put("decreasedCount", orderItem.getItemCount());
+    private List<OutboxEvent> createOrderEvents(Order savedOrder) {
+        List<OutboxEvent> events = new ArrayList<>();
 
-        OutboxEvent event = OutboxEvent.createEvent("OrderCreated", JsonUtils.toJson(payload));
-        OutboxEvent savedEvent = outboxRepository.save(event);
-        events.add(savedEvent);
-    });
+        savedOrder.getOrderItems().forEach(orderItem -> {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("skuKey", orderItem.getSku().getId());
+            payload.put("decreasedCount", orderItem.getItemCount());
 
-    return events;
-}
+            OutboxEvent event = OutboxEvent.createEvent("OrderCreated", JsonUtils.toJson(payload));
+            OutboxEvent savedEvent = outboxRepository.save(event);
+            events.add(savedEvent);
+        });
+
+        return events;
+    }
 
     private void validateIdempotency(String idempotencyKey) {
         if (orderRepository.existsByIdempotencyKey(idempotencyKey)) {
             throw new IllegalStateException("Order with this idempotencyKey already exists.");
         }
     }
-
 
 }
