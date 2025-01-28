@@ -19,15 +19,15 @@ public class OutboxEventProcessor {
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void processOutboxEvents() {
-        List<OutboxEvent> pendingEvents = outboxRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
+        List<OutboxEvent> failedEvents = outboxRepository.findByStatus(OutboxEvent.OutboxStatus.FAILED);
 
-        if (pendingEvents.isEmpty()) {
+        if (failedEvents.isEmpty()) {
             return;
         }
 
-        log.info("Found {} pending events to retry", pendingEvents.size());
+        log.info("Found {} pending events to retry", failedEvents.size());
 
-        for (OutboxEvent event : pendingEvents) {
+        for (OutboxEvent event : failedEvents) {
             try {
                 kafkaTemplate.send("order-created", event.getPayload());
                 event.markAsCompleted();
@@ -35,8 +35,9 @@ public class OutboxEventProcessor {
                 log.info("Successfully retried event: {}", event.getPayload());
             } catch (Exception e) {
                 log.error("Failed to retry event: {}", event.getPayload(), e);
-                event.markAsFailed();
-                outboxRepository.save(event);
+                throw new RuntimeException("Failed to retry event", e);
+//                event.markAsFailed();
+//                outboxRepository.save(event);
             }
         }
     }

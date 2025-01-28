@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,7 +83,8 @@ public class OrderService {
         savedOrder.getOrderItems().forEach(orderItem -> {
             Map<String, Object> payload = new HashMap<>();
             payload.put("skuKey", orderItem.getSku().getId());
-            payload.put("decreasedCount", orderItem.getItemCount());
+            payload.put("finalStockCount", orderItem.getSku().getStockCount());
+            payload.put("timestamp", LocalDateTime.now().toString());
 
             OutboxEvent event = OutboxEvent.createEvent("OrderCreated", JsonUtils.toJson(payload));
             OutboxEvent savedEvent = outboxRepository.save(event);

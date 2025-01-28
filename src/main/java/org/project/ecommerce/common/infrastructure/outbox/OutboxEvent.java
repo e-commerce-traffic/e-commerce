@@ -1,16 +1,14 @@
 package org.project.ecommerce.common.infrastructure.outbox;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "outbox_events")
 @Getter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OutboxEvent {
 
