@@ -12,6 +12,7 @@ import org.project.ecommerce.fulfillment.domain.StockRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -33,11 +34,15 @@ public class StockEventConsumer {
             LocalDateTime eventTimestamp = LocalDateTime.parse(event.get("timestamp").asText());
 
             Stock currentStock = stockRepository.findBySkuKey(skuKey);
-            if (currentStock.getUpdatedAt().isBefore(eventTimestamp)) {
-                stockRepository.updateStockCountAndTimestamp(skuKey, finalStockCount, eventTimestamp);
-            }
 
-        } catch (IllegalStateException e) {  // 재고 부족
+            // 시간 비교를 좀 더 관대하게
+            if (Duration.between(currentStock.getUpdatedAt(), eventTimestamp).toSeconds() >= 0) {
+                stockRepository.updateStockCountAndTimestamp(skuKey, finalStockCount, eventTimestamp);
+                log.info("Stock updated - skuKey: {}, newCount: {}", skuKey, finalStockCount);
+            } else {
+                log.info("Update skipped - skuKey: {}, oldTimestamp: {}, newTimestamp: {}",
+                        skuKey, currentStock.getUpdatedAt(), eventTimestamp);
+            }        } catch (IllegalStateException e) {  // 재고 부족
             log.error("Business logic failure: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
