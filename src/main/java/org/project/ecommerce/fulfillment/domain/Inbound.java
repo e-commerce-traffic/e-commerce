@@ -34,10 +34,10 @@ public class Inbound {
 
 
 
-    public static Inbound create(Sku sku, FulfillmentCenter fulfillmentCenter, int itemCount) {
+    public static Inbound create( FulfillmentCenter fulfillmentCenter,Sku sku ,int itemCount) {
         return Inbound.builder()
-                .sku(sku)
                 .fulfillmentCenter(fulfillmentCenter)
+                .sku(sku)
                 .itemCount(itemCount)
                 .inboundDate(LocalDateTime.now())
                 .build();

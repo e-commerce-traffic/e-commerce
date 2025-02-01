@@ -7,16 +7,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class StockService {
     private final StockRepository repository;
 
+
+    public int getStockByVendorItemId(Long vendorItemId) {
+        return repository.findTotalStockByVendorItemId(vendorItemId);
+    }
+
+
     public int getStock(List<Long> skuIds) {
         return skuIds.stream()
-                .map(skuId -> repository.findStockBySkuKey(skuId))
+                .map(skuId -> repository.findStockCountBySkuKey(skuId))
                 .filter(Objects::nonNull)
                 .mapToInt(Integer::intValue)
                 .sum();

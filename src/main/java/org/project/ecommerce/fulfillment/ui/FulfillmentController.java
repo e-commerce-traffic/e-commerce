@@ -3,27 +3,26 @@ package org.project.ecommerce.fulfillment.ui;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.project.ecommerce.fulfillment.application.InboundService;
-import org.project.ecommerce.fulfillment.domain.Sku;
+import org.project.ecommerce.fulfillment.application.StockService;
 import org.project.ecommerce.fulfillment.ui.dto.InboundRequestDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/stock")
 @RequiredArgsConstructor
 public class FulfillmentController {
-    private final InboundService service;
+    private final InboundService inboundService;
+    private final StockService stockService;
 
 
-//    @GetMapping("/{vendorItemId}")
-//    public ResponseEntity<Integer> getStock(@PathVariable Long vendorItemId) {
-//        // 총 재고 수량 반환
-//        int totalStock = service.getTotalStockByVendorItem(vendorItemId);
-//        return ResponseEntity.ok(totalStock);
-//    }
-//
+    @GetMapping("/{vendorItemId}")
+    public ResponseEntity<Integer> getStock(@PathVariable Long vendorItemId) {
+        int stockCount = stockService.getStockByVendorItemId(vendorItemId);
+        return ResponseEntity.ok(stockCount);
+    }
+
 
     /**
      * 입고 api
@@ -31,10 +30,10 @@ public class FulfillmentController {
      *
      * @return void
      */
-//    @PostMapping("/inbound")
-//    public ResponseEntity<Void> createInbound(@RequestBody @Valid InboundRequestDto dto) {
-//
-//         service.createStock(dto);
-//         return ResponseEntity.ok().build();
-//    }
+    @PostMapping("/inbound")
+    public ResponseEntity<Void> createInbound(@RequestBody @Valid InboundRequestDto dto) {
+
+        inboundService.createInbound(dto);
+         return ResponseEntity.ok().build();
+    }
 }

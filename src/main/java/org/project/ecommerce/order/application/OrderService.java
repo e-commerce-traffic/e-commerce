@@ -2,7 +2,9 @@ package org.project.ecommerce.order.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.project.ecommerce.common.infrastructure.outbox.EventType;
 import org.project.ecommerce.common.infrastructure.outbox.OutBoxEventRepository;
+import org.project.ecommerce.common.infrastructure.outbox.OutboxEventCreator;
 import org.project.ecommerce.common.infrastructure.utils.JsonUtils;
 import org.project.ecommerce.fulfillment.application.StockService;
 import org.project.ecommerce.fulfillment.domain.*;
@@ -28,6 +30,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final VendorItemSkuRepository vendorItemSkuRepository;
     private final OutBoxEventRepository outboxRepository;
+    private final OutboxEventCreator eventCreator;
+
 
     private final StockService stockService;
     private final ApplicationEventPublisher eventPublisher;
@@ -35,7 +39,7 @@ public class OrderService {
     /**
      * 주문 생성 로직
      *
-     * @param dto            userId, vendor_item_id, count 리스트 포함
+     * @param dto            {userId, vendor_item_id, count}
      * @param idempotencyKey 멱등성 키
      */
     @Transactional
@@ -51,7 +55,7 @@ public class OrderService {
                     .map(v -> v.getSku().getId()).collect(Collectors.toList());
 
             // Cassandra에서 재고 조회
-            if (stockService.getStock(skuIds) < itemDto.getItemCount()) {
+            if (stockService.getStockByVendorItemId(vendorItem.getId()) < itemDto.getItemCount()) {
                 throw new IllegalStateException("재고가 부족합니다.");
             }
             // 재고가 충분한 SKU 선택
@@ -67,32 +71,26 @@ public class OrderService {
             selectedSku.decreaseStock(itemDto.getItemCount());
             skuRepository.save(selectedSku);
 
+
             order.addOrderItem(vendorItem, selectedSku, itemDto.getItemCount());
         }
 
 
-        Order saveOrder = orderRepository.save(order);
-        List<OutboxEvent> events = createOrderEvents(saveOrder);
-        events.forEach(eventPublisher::publishEvent);
+        Order savedOrder = orderRepository.save(order);
+        createAndPublishEvents(savedOrder);
     }
 
-
-    private List<OutboxEvent> createOrderEvents(Order savedOrder) {
-        List<OutboxEvent> events = new ArrayList<>();
-
+    private void createAndPublishEvents(Order savedOrder) {
         savedOrder.getOrderItems().forEach(orderItem -> {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("skuKey", orderItem.getSku().getId());
-            payload.put("finalStockCount", orderItem.getSku().getStockCount());
-            payload.put("timestamp", LocalDateTime.now().toString());
-
-            OutboxEvent event = OutboxEvent.createEvent("OrderCreated", JsonUtils.toJson(payload));
-            OutboxEvent savedEvent = outboxRepository.save(event);
-            events.add(savedEvent);
+            eventCreator.createStockEvents(
+                    EventType.ORDER_CREATED,
+                    orderItem.getSku().getId(),
+                    orderItem.getSku().getStockCount(),
+                    orderItem.getVendorItem().getId()
+            ).forEach(eventPublisher::publishEvent);
         });
-
-        return events;
     }
+
 
     private void validateIdempotency(String idempotencyKey) {
         if (orderRepository.existsByIdempotencyKey(idempotencyKey)) {
