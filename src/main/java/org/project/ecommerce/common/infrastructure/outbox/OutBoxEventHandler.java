@@ -13,7 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OrderEventHandler {
+public class OutBoxEventHandler {
     private final OutBoxEventRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -21,19 +21,33 @@ public class OrderEventHandler {
     @Async
     public void handleOrderCreated(OutboxEvent event) {
         try {
+            String topic = determineTopicByEventType(event.getEventType());
             JsonNode payload = JsonUtils.parse(event.getPayload());
-            Long skuKey = payload.get("skuKey").asLong();
-            int finalStockCount = payload.get("finalStockCount").asInt();
+//            Long skuKey = payload.get("skuKey").asLong();
+//            int finalStockCount = payload.get("finalStockCount").asInt();
+//
+//            log.info("OrderEventHandler Sending event for skuKey: {}, finalStockCount: {}", skuKey, finalStockCount);
 
-            log.info("Sending event for skuKey: {}, finalStockCount: {}", skuKey, finalStockCount);
+            kafkaTemplate.send(topic, event.getPayload())
+                    .whenComplete((result, ex) -> {
+                        if (null == ex) {
+                            event.markAsCompleted();
+                            log.info("Event sent successfully to topic: {}", topic);
+                        } else {
+                            event.markAsFailed();
+                            log.error("Failed to send order event:{}", ex.getMessage());
+                        }
+                        outboxRepository.save(event);
+                    });
 
-            kafkaTemplate.send("order-created", skuKey.toString(), event.getPayload());
-            event.markAsCompleted();
-            outboxRepository.save(event);
         } catch (Exception e) {
             log.error("Failed to process event: {}", event.getPayload(), e);
             event.markAsFailed();
             outboxRepository.save(event);
         }
+    }
+
+    private String determineTopicByEventType(String eventType) {
+        return EventType.getTopicByEventType(eventType);
     }
 }
