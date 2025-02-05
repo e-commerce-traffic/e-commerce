@@ -24,7 +24,9 @@ public class OutBoxEventHandler {
             String topic = determineTopicByEventType(event.getEventType());
             JsonNode payload = JsonUtils.parse(event.getPayload());
 //            Long skuKey = payload.get("skuKey").asLong();
+//             Long vendorItemKey = payload.get("vendorItemKey").asLong();
 //            int finalStockCount = payload.get("finalStockCount").asInt();
+//            String partitionKey = vendorItemKey + "_" + skuKey;
 //
 //            log.info("OrderEventHandler Sending event for skuKey: {}, finalStockCount: {}", skuKey, finalStockCount);
 
