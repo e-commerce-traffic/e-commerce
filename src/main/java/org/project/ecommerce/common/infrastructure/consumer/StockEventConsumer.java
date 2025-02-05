@@ -24,6 +24,8 @@ public class StockEventConsumer {
     public void handleOrderCreated(String eventPayload) {
         try {
             JsonNode event = JsonUtils.parse(eventPayload);
+
+
             Long skuKey = event.get("skuKey").asLong();
             Long vendorItemKey = event.get("vendorItemKey").asLong();
             int finalStockCount = event.get("finalStockCount").asInt();
