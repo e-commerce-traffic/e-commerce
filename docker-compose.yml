@@ -1,8 +1,8 @@
 services:
-  # MySQL Master
-  db-master:
+  # MySQL Shard 1
+  db-shard1:
     image: mysql:8.0
-    container_name: commerce-db-master
+    container_name: commerce-db-shard1
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: commerce
@@ -11,9 +11,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql-master-data:/var/lib/mysql
-      - ./master.cnf:/etc/mysql/conf.d/my.cnf
-      - ./master-init:/docker-entrypoint-initdb.d
+      - mysql-shard1-data:/var/lib/mysql
     networks:
       - app-network
     healthcheck:
@@ -22,10 +20,10 @@ services:
       timeout: 5s
       retries: 5
 
-  # MySQL Replica
-  db-replica:
+  # MySQL Shard 2
+  db-shard2:
     image: mysql:8.0
-    container_name: commerce-db-replica
+    container_name: commerce-db-shard2
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: commerce
@@ -34,16 +32,16 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql-replica-data:/var/lib/mysql
-      - ./replica.cnf:/etc/mysql/conf.d/my.cnf
-      - ./replica-init:/replica-init
-      - ./replica-entrypoint.sh:/usr/local/bin/replica-entrypoint.sh
-    entrypoint: [ "/usr/local/bin/replica-entrypoint.sh" ]
-    depends_on:
-      db-master:
-        condition: service_healthy
+      - mysql-shard2-data:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
 
   # Confluent Kafka with KRaft
   kafka:
@@ -99,8 +97,8 @@ services:
       - app-network
 
 volumes:
-  mysql-master-data:
-  mysql-replica-data:
+  mysql-shard1-data:
+  mysql-shard2-data:
   cassandra-data:
   kafka-data:
 

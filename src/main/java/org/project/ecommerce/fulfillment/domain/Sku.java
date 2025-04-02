@@ -25,6 +25,8 @@ public class Sku {
     @Column(name = "stock_count", nullable = false) // 재고 관리 필드 추가
     private int stockCount = 0;
 
+
+
     public void incrementStock(int count) {
         if (count < 0) throw new IllegalArgumentException("Increment count cannot be negative");
         this.stockCount += count;

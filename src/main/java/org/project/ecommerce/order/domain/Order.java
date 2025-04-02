@@ -18,7 +18,7 @@ import java.util.Map;
 @Getter
 @Entity
 @Table(name = "orders")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

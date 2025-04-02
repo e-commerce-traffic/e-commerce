@@ -9,7 +9,7 @@ import org.project.ecommerce.fulfillment.domain.Sku;
 @Getter
 @Entity
 @Table(name = "order_item")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

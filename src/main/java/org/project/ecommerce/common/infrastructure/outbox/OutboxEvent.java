@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "outbox_events")
 @Getter
-@Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OutboxEvent {
 
     @Id
@@ -17,8 +18,8 @@ public class OutboxEvent {
     @Column(name = "outbox_id")
     private Long id;
 
-    @Column(name = "event_type", nullable = false, length = 50)
-    private String eventType;
+    @Column(name = "aggregate_type", nullable = false, length = 50)
+    private String aggregateType;
 
     @Column(columnDefinition = "json", nullable = false)
     private String payload;
@@ -27,7 +28,8 @@ public class OutboxEvent {
     @Column(nullable = false)
     private OutboxStatus status;
 
-
+    @Column(name = "message_key", length = 255)
+    private String messageKey;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -35,20 +37,19 @@ public class OutboxEvent {
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
-    @Builder
-    public OutboxEvent(String eventType, String payload) {
-        this.eventType = eventType;
-        this.payload = payload;
-        this.status = OutboxStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
-    }
+    @Column(name = "retry_count")
+    private Integer retryCount;
 
-
-
+    /**
+     * 레거시 지원을 위한 팩토리 메서드
+     */
     public static OutboxEvent createEvent(String eventType, String payload) {
         return OutboxEvent.builder()
-                .eventType(eventType)
+                .aggregateType(eventType)
                 .payload(payload)
+                .status(OutboxStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .retryCount(0)
                 .build();
     }
 
@@ -66,4 +67,15 @@ public class OutboxEvent {
         this.publishedAt = LocalDateTime.now();
     }
 
+    public void markAsPending() {
+        this.status = OutboxStatus.PENDING;
+        this.publishedAt = LocalDateTime.now();
+    }
+
+    public void incrementRetryCount() {
+        if (this.retryCount == null) {
+            this.retryCount = 0;
+        }
+        this.retryCount++;
+    }
 }
