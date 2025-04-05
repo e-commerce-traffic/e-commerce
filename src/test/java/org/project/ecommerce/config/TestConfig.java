@@ -1,11 +1,11 @@
 package org.project.ecommerce.config;
 
-import org.project.ecommerce.common.infrastructure.outbox.OutBoxEventRepository;
-import org.project.ecommerce.common.infrastructure.outbox.OutboxEventCreator;
-import org.project.ecommerce.fulfillment.application.StockService;
-import org.project.ecommerce.fulfillment.domain.SkuRepository;
-import org.project.ecommerce.fulfillment.domain.StockRepository;
-import org.project.ecommerce.fulfillment.domain.VendorItemSkuRepository;
+import org.project.ecommerce.eventstore.outbox.domain.OutBoxEventRepository;
+import org.project.ecommerce.eventstore.outbox.domain.OutboxEventCreator;
+import org.project.ecommerce.inventory.application.StockService;
+import org.project.ecommerce.category.domain.SkuRepository;
+import org.project.ecommerce.inventory.domain.StockRepository;
+import org.project.ecommerce.category.domain.VendorItemSkuRepository;
 import org.project.ecommerce.order.application.OrderService;
 import org.project.ecommerce.order.domain.OrderRepository;
 import org.project.ecommerce.order.domain.VendorItemRepository;

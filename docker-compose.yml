@@ -1,4 +1,25 @@
 services:
+  # Reference DB
+  reference-db:
+    image: mysql:8.0
+    container_name: commerce-reference-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: commerce
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-reference-data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-pref_root_pw" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # MySQL Shard 1
   db-shard1:
     image: mysql:8.0
@@ -97,6 +118,7 @@ services:
       - app-network
 
 volumes:
+  mysql-reference-data:
   mysql-shard1-data:
   mysql-shard2-data:
   cassandra-data:

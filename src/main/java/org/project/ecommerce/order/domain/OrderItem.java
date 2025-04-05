@@ -1,10 +1,10 @@
 package org.project.ecommerce.order.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.project.ecommerce.fulfillment.domain.Sku;
+import org.project.ecommerce.category.domain.Sku;
+import org.project.ecommerce.category.domain.VendorItem;
 
 @Getter
 @Entity

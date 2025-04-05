@@ -8,9 +8,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.project.ecommerce.common.infrastructure.consumer.StockEventConsumer;
-import org.project.ecommerce.fulfillment.domain.Stock;
-import org.project.ecommerce.fulfillment.domain.StockRepository;
+import org.project.ecommerce.eventstore.kafka.consumer.StockEventConsumer;
+import org.project.ecommerce.inventory.domain.Stock;
+import org.project.ecommerce.inventory.domain.StockRepository;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;

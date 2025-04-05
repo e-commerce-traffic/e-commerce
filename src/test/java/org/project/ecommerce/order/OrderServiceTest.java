@@ -1,6 +1,5 @@
 package org.project.ecommerce.order;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,35 +8,31 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.project.ecommerce.common.infrastructure.outbox.EventType;
-import org.project.ecommerce.common.infrastructure.outbox.OutBoxEventRepository;
-import org.project.ecommerce.common.infrastructure.outbox.OutboxEvent;
-import org.project.ecommerce.common.infrastructure.outbox.OutboxEventCreator;
-import org.project.ecommerce.common.infrastructure.utils.JsonUtils;
-import org.project.ecommerce.fulfillment.application.StockService;
-import org.project.ecommerce.fulfillment.domain.Sku;
-import org.project.ecommerce.fulfillment.domain.SkuRepository;
-import org.project.ecommerce.fulfillment.domain.VendorItemSku;
-import org.project.ecommerce.fulfillment.domain.VendorItemSkuRepository;
+import org.project.ecommerce.eventstore.outbox.domain.EventType;
+import org.project.ecommerce.eventstore.outbox.domain.OutBoxEventRepository;
+import org.project.ecommerce.eventstore.outbox.domain.OutboxEvent;
+import org.project.ecommerce.eventstore.outbox.domain.OutboxEventCreator;
+import org.project.ecommerce.inventory.application.StockService;
+import org.project.ecommerce.category.domain.Sku;
+import org.project.ecommerce.category.domain.SkuRepository;
+import org.project.ecommerce.category.domain.VendorItemSku;
+import org.project.ecommerce.category.domain.VendorItemSkuRepository;
 import org.project.ecommerce.order.application.OrderService;
 import org.project.ecommerce.order.domain.Order;
 import org.project.ecommerce.order.domain.OrderRepository;
-import org.project.ecommerce.order.domain.VendorItem;
+import org.project.ecommerce.category.domain.VendorItem;
 import org.project.ecommerce.order.domain.VendorItemRepository;
 import org.project.ecommerce.order.ui.dto.OrderItemDto;
 import org.project.ecommerce.order.ui.dto.OrderRequestDto;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
